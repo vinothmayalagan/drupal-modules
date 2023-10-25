@@ -1,0 +1,21 @@
+
+shopify_api_data.fetch_data:
+  defaults:
+    _controller: \Drupal\shopify_api_data\Controller\ShopifyApiDataController::fetchData
+    _title: Shopify API Data
+  path: /admin/shopify-fetch-data
+  requirements:
+    _permission: administer site configuration
+shopify_api_data.form:
+  defaults:
+    _form: Drupal\shopify_api_data\Form\ShopifyAPICredentialsForm
+  path: /admin/shopifyCredentials/form
+  requirements:
+    _permission: administer site configuration
+shopify_api_data.shopify_page_sync:
+  defaults:
+    _controller: \Drupal\shopify_api_data\Controller\ShopifyApiDataController::Shopify_page_sync
+    _title: Shopify API Data
+  path: /admin/shopify-api-data
+  requirements:
+    _permission: administer site configuration

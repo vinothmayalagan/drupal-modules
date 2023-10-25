@@ -1,0 +1,11 @@
+Hi Users , 
+ while instaiing the module , the content type will be created , the this you have to do this
+add the fields the imporant you want your machine name exactly like 
+
+            'field_store_name' 
+            'field_description' 
+           
+            'field_title' =>
+
+            'field_price' 
+            'field_shopify_image'

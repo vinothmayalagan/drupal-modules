@@ -1,0 +1,19 @@
+
+shopify_api_data.shopify_page_sync:
+  title: 'Shopify API Data'
+  description: 'Sync Shopify data.'
+  parent: system.admin_config
+  route_name: shopify_api_data.shopify_page_sync
+  weight: 20
+
+shopify_api_data.form:
+  title: 'Shopify API Credentials Form'
+  parent: system.admin_config
+  route_name: shopify_api_data.form
+  weight: 22
+
+# shopify_api_data.fetch_data:
+#   title: 'Fetch Directly From Shopify'
+#   parent: system.admin_config
+#   route_name: shopify_api_data.fetch_data
+#   weight: 21

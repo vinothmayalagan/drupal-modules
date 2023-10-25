@@ -1,0 +1,8 @@
+name: 'Shopify API Data'
+type: module
+description: 'Fetches data from Shopify using the API.'
+package: 'Custom'
+core_version_requirement: ^8 || ^9 || ^10
+version: '1.0'
+libraries:
+  - shopify_api_data/shopify-api-data-css

@@ -1,0 +1,63 @@
+<?php
+use Drupal\shopify_api_data\Controller\ShopifyApiDataController;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\user\Entity\User;
+
+function shopify_api_data_cron() {
+  $http_client = \Drupal::httpClient();
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $messenger = \Drupal::messenger();
+  $renderer = \Drupal::service('renderer');  // Get the Renderer service.
+  $entity_field_manager = \Drupal::service('entity_field.manager');
+  $entity_type_bundle_info = \Drupal::service('entity_type.bundle.info');  // Add this line.
+
+  // Load or create the user account to assign as the author.
+  $author_uid = 1;
+  $author = User::load($author_uid);
+
+  if (!$author) {
+    $author = User::create([
+      'name' => 'shopify_cron', // Set a unique username.
+      'status' => 1, // Active status.
+    ]);
+    $author->save();
+  }
+
+  // Instantiate the controller using the container.
+  $controller = new ShopifyApiDataController($http_client, $entity_type_manager, $messenger, $renderer, $entity_field_manager,$entity_type_bundle_info);
+
+ \Drupal::currentUser()->setAccount($author);
+  $controller->fetchData();
+
+}
+
+
+
+
+
+
+
+use Drupal\taxonomy\Entity\Vocabulary;
+
+/**
+ * Implements hook_install().
+ */
+function shopify_api_data_install() {
+  $vocabulary = Vocabulary::create([
+    'vid' => 'product_category', // Unique machine name for the vocabulary.
+    'name' => 'product category', // Display name of the vocabulary.
+    'description' => 'A custom vocabulary created programmatically.',
+  ]);
+  $vocabulary->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function shopify_api_data_uninstall() {
+  $vocabulary = Vocabulary::load('product_category');
+  if ($vocabulary) {
+    $vocabulary->delete();
+  }
+}

@@ -1,0 +1,4 @@
+services:
+  controller.shopify_api_data:
+    class: Drupal\shopify_api_data\Controller\ShopifyApiDataController
+    arguments: ['@http_client', '@entity_type.manager', '@messenger']
