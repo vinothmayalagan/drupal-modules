@@ -1,0 +1,8 @@
+---
+html_sitemap.page:
+  defaults:
+    _controller: \Drupal\html_sitemap\Controller\SitemapController::sitemapPage
+    _title: Sitemap
+  path: /sitemap
+  requirements:
+    _permission: access content

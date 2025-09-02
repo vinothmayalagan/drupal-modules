@@ -1,0 +1,7 @@
+name: 'HTML Sitemap'
+type: module
+description: 'Generates an HTML sitemap using XML sitemap data.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - drupal:xmlsitemap

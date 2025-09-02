@@ -1,0 +1,25 @@
+<div class="html-sitemap">
+  <div class="sitemap-title my-4">
+  <h1 class="text-center fw-bold">
+    HAPUS INFOTECH
+  </h1>
+  <p class="text-center h2">Sitemap</p>
+  </div>
+  <div class="page-title">
+    <div class="card mx-5 p-5 card mx-5 p-5 shadow-lg">
+  <p class="text-center bg-secondary p-4 text-white fs-4 fw-normal">
+    Total number of pages:
+    {{ content|length }}
+  </p>
+  <ul class="list-unstyled">
+    {% for item in content %}
+      <li class="p-2 border-bottom border-2 border-secondary">
+        <a href="{{ item.url }}" class="fs-5 fw-bold">
+          {{ item.title }} | HapusInfoTech
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+</div>
+</div>

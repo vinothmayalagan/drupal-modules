@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function html_sitemap_theme($existing, $type, $theme, $path) {
+  return [
+    'html_sitemap' => [
+      'variables' => ['content' => NULL],
+    ],
+  ];
+}
+
+
+
+
