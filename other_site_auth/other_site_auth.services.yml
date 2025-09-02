@@ -1,0 +1,5 @@
+services:
+  other_site_auth.logout_route_subscriber:
+    class: Drupal\other_site_auth\Routing\LogoutRouteSubscriber
+    tags:
+      - { name: event_subscriber }

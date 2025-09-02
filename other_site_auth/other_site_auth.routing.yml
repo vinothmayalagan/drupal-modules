@@ -1,0 +1,16 @@
+other_site_auth.external_login:
+  path: "/external-login"
+  defaults:
+    _controller: '\Drupal\other_site_auth\Controller\ExternalLoginController::loginUser'
+    _title: "External Login"
+  requirements:
+    _permission: "access content"
+  methods: [POST]
+other_site_auth.user_login_redirect:
+  path: "/user-login-redirect"
+  defaults:
+    _controller: '\Drupal\other_site_auth\Controller\ExternalLoginController::userLoginRedirect'
+    _title: "User Login Redirect"
+  requirements:
+    _permission: "access content"
+  methods: [GET]

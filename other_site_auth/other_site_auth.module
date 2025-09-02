@@ -1,0 +1,23 @@
+<?php
+
+use Drupal\Core\Session\AnonymousUserSession;
+
+
+/**
+ * Logs the current user out.
+ */
+function wp_user_logout() {
+    $user = \Drupal::currentUser();
+  
+    \Drupal::logger('user')->info('Session closed for %name.', ['%name' => $user->getAccountName()]);
+  
+    \Drupal::moduleHandler()->invokeAll('user_logout', [$user]);
+  
+    // Destroy the current session, and reset $user to the anonymous user.
+    // Note: In Symfony the session is intended to be destroyed with
+    // Session::invalidate(). Regrettably this method is currently broken and may
+    // lead to the creation of spurious session records in the database.
+    // @see https://github.com/symfony/symfony/issues/12375
+    \Drupal::service('session_manager')->destroy();
+    $user->setAccount(new AnonymousUserSession());
+  }
