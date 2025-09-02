@@ -1,0 +1,55 @@
+<?php
+
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function nc_unit_site_agreement_form_alter(&$form, FormStateInterface $form_state, $form_id)
+{
+
+
+  if ($form_id === 'webform_submission_unit_site_agreement_application_add_form' || $form_id === 'webform_submission_unit_site_agreement_application_edit_form') {
+
+    if (isset($form['elements']['local_site_owner']['privacy_statement']['#title'])) {
+      $form['elements']['local_site_owner']['privacy_statement']['#title'] = new TranslatableMarkup('<a href="/privacy"  target="_blank">' . $form['elements']['local_site_owner']['privacy_statement']['#title'] . '</a>', [], ['html' => TRUE]);
+    }
+
+    if (isset($form['elements']['local_site_owner']['web_service_agreement']['#title'])) {
+      $form['elements']['local_site_owner']['web_service_agreement']['#title'] = new TranslatableMarkup('<a href="/serviceagreement" target="_blank">' . $form['elements']['local_site_owner']['web_service_agreement']['#title'] . '</a>', [], ['html' => TRUE]);
+    }
+
+    if(isset($form['elements']['local_site_owner']['date'])){
+      $form['elements']['local_site_owner']['date']['#default_value'] = date('m-d-Y');
+    }
+     
+    if(isset($form['elements']['non_disclosure_agreement']['nda_date'])){
+      $form['elements']['non_disclosure_agreement']['nda_date']['#default_value'] = date('m-d-Y');
+    }
+   
+    
+  }
+
+
+
+  if ($form_id === 'webform_submission_site_administrators_nda_add_form' || $form_id === 'webform_submission_site_administrators_nda_edit_form') {
+
+    if (isset($form['elements']['siteadminnda']['privacy_statement']['#title'])) {
+      $form['elements']['siteadminnda']['privacy_statement']['#title'] = new TranslatableMarkup('<a href="/privacy"  target="_blank">' . $form['elements']['siteadminnda']['privacy_statement']['#title'] . '</a>', [], ['html' => TRUE]);
+    }
+
+    if (isset($form['elements']['siteadminnda']['service_agreement']['#title'])) {
+      $form['elements']['siteadminnda']['service_agreement']['#title'] = new TranslatableMarkup('<a href="/serviceagreement" target="_blank">' . $form['elements']['siteadminnda']['service_agreement']['#title'] . '</a>', [], ['html' => TRUE]);
+    }
+
+    if(isset($form['elements']['siteadminnda']['date'])){
+      $form['elements']['siteadminnda']['date']['#default_value'] = date('m-d-Y');
+    }
+     
+    if(isset($form['elements']['non_disclosure_agreement']['nda_date'])){
+      $form['elements']['non_disclosure_agreement']['nda_date']['#default_value'] = date('m-d-Y');
+    }
+  
+  }
+}
