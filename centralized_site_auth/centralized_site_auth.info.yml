@@ -1,0 +1,7 @@
+name: Centralized Site Module
+type: module
+core_version_requirement: ^10
+description: Provides centralized login functionality using the default user login form.
+package: Custom
+dependencies:
+  - drupal:user

@@ -1,0 +1,165 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use GuzzleHttp\Client;
+use Drupal\Core\Url;
+use Drupal\Core\Routing\TrustedRedirectResponse;
+use GuzzleHttp\Cookie\CookieJar;
+use Drupal\Core\Session\AnonymousUserSession;
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function centralized_site_auth_form_alter(&$form, FormStateInterface $form_state, $form_id)
+{
+    // Alter the default user login form.
+    if ($form_id === 'user_login_form') {
+        // Add a custom submit handler to capture the password.
+        $form['#submit'][] = 'centralized_site_auth_capture_password';
+        // Add a custom submit handler to send user details and redirect.
+        $form['#submit'][] = 'centralized_site_auth_user_login_post';
+    }
+}
+
+/**
+ * Custom submit handler to capture the user's plaintext password.
+ */
+function centralized_site_auth_capture_password(array &$form, \Drupal\Core\Form\FormStateInterface $form_state)
+{
+    // Get the submitted password.
+    $password = $form_state->getValue('pass');
+    \Drupal::state()->set('centralized_user_password', $password);
+}
+
+/**
+ * Custom submit handler to send user details via POST and redirect.
+ *
+ * @param array $form
+ *   The form structure.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state object.
+ */
+function centralized_site_auth_user_login_post(array &$form, FormStateInterface $form_state)
+{
+    $config = \Drupal::config('centralized_site_auth.settings');
+    $base_url = $config->get('target_site_url');
+
+    $user = \Drupal::currentUser();
+    $password = \Drupal::state()->get('centralized_user_password');
+
+    $role_to_site_map = [
+        'authenticated' => $base_url . '/external-login',
+    ];
+
+    foreach ($user->getRoles() as $role) {
+        if (isset($role_to_site_map[$role])) {
+            $target_url = $role_to_site_map[$role];
+            $token = centralized_site_auth_generate_token($user->id());
+
+            $user_details = [
+                'token' => $token,
+                'username' => $user->getAccountName(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+                'name' => $user->getDisplayName(),
+                'password' => $password,
+            ];
+
+            $response = centralized_site_auth_send_user_details($target_url, $user_details);
+
+            if ($response && isset($response['uid'])) {
+                $uid = $response['uid'];
+                $redirect_url = $base_url . '/user-login-redirect?uid=' . $uid;
+
+                \Drupal::state()->delete('centralized_user_password');
+                $form_state->setResponse(new TrustedRedirectResponse($redirect_url));
+            } else {
+                \Drupal::messenger()->addError(t('Failed to log in to the target site.'));
+            }
+            return;
+        }
+    }
+
+    \Drupal::messenger()->addError(t('You do not have access to the target site.'));
+}
+
+
+/**
+ * Sends user details to the target site using Guzzle HTTP client.
+ *
+ * @param string $url
+ *   The target site's URL to send the POST request to.
+ * @param array $user_details
+ *   An array of user details to send.
+ *
+ * @return bool
+ *   TRUE if the request was successful, FALSE otherwise.
+ */
+function centralized_site_auth_send_user_details($url, array $user_details)
+{
+    $client = new Client();
+    $cookieJar = new CookieJar();
+
+    try {
+        $response = $client->post($url, [
+            'json' => $user_details,
+            'cookies' => $cookieJar,
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
+    } catch (\Exception $e) {
+        \Drupal::logger('centralized_site_auth')->error('Error sending user details: @message', [
+            '@message' => $e->getMessage(),
+        ]);
+        return false;
+    }
+}
+
+
+/**
+ * Generate a secure token for the user.
+ *
+ * @param int $uid
+ *   The user ID.
+ *
+ * @return string
+ *   The generated secure token.
+ */
+function centralized_site_auth_generate_token($uid)
+{
+    $timestamp = time();
+    $secret = 'shared_secret_key'; // Same key as the target site.
+    $data = "$uid|$timestamp"; // Ensure this format matches.
+
+    // Generate the secure token using HMAC in hexadecimal format.
+    $hmac = hash_hmac('sha256', $data, $secret, false); // Hexadecimal output.
+
+    // Combine the UID, timestamp, and HMAC into a single token.
+    return base64_encode("$uid|$timestamp|$hmac");
+}
+
+
+
+/**
+ * Logs the current user out.
+ */
+function wp_user_logout()
+{
+    $user = \Drupal::currentUser();
+
+    \Drupal::logger('user')->info('Session closed for %name.', ['%name' => $user->getAccountName()]);
+
+    \Drupal::moduleHandler()->invokeAll('user_logout', [$user]);
+
+    // Destroy the current session, and reset $user to the anonymous user.
+    // Note: In Symfony the session is intended to be destroyed with
+    // Session::invalidate(). Regrettably this method is currently broken and may
+    // lead to the creation of spurious session records in the database.
+    // @see https://github.com/symfony/symfony/issues/12375
+    \Drupal::service('session_manager')->destroy();
+    $user->setAccount(new AnonymousUserSession());
+}

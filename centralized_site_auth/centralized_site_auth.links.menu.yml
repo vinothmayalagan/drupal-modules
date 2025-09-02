@@ -1,0 +1,6 @@
+centralized_site_auth.settings:
+  title: 'Target Site Configuration'
+  description: 'Configure the base URL for the target site.'
+  route_name: centralized_site_auth.settings
+  parent: system.admin_config_development
+  weight: 100
